@@ -1,20 +1,25 @@
 package se.danielmartensson.fisherfaces.matlab;
 
-import org.apache.commons.math3.linear.MatrixUtils;
-import org.apache.commons.math3.linear.RealMatrix;
+import org.ojalgo.matrix.Primitive64Matrix;
+import org.ojalgo.matrix.Primitive64Matrix.LogicalBuilder;
+
 
 public class Repmat {
 
-	static public RealMatrix repmat(RealMatrix A, int m, int n) {
-		int rows = A.getRowDimension();
-		int columns = A.getColumnDimension();
-		double[][] data = A.getData();
-		RealMatrix B = MatrixUtils.createRealMatrix(rows * m, columns * n);
-		for (int i = 0; i < m; i++) {
-			for (int j = 0; j < n; j++) {
-				B.setSubMatrix(data, i * rows, j * columns);
-			}
-		}
-		return B;
+	static public Primitive64Matrix repmat(Primitive64Matrix X, int m, long n) {
+
+	    LogicalBuilder builder = X.logical();
+
+	    for (int i = 1; i < m; i++) {
+	        builder.below(X);
+	    }
+
+	    Primitive64Matrix firstCol = builder.get();
+
+	    for (int j = 1; j < n; j++) {
+	        builder.right(firstCol);
+	    }
+
+	    return builder.get();
 	}
 }

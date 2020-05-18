@@ -1,16 +1,15 @@
 package se.danielmartensson.fisherfaces;
 
-import org.apache.commons.math3.linear.RealMatrix;
-
+import org.ojalgo.matrix.Primitive64Matrix;
 import lombok.Data;
 
 @Data
 public class Model {
 	private String name;
-	private RealMatrix D;
-	private RealMatrix W;
-	private RealMatrix P;
-	private int num_components;
-	private RealMatrix mu;
-	private RealMatrix y;
+	private Primitive64Matrix D;
+	private Primitive64Matrix W;
+	private Primitive64Matrix P;
+	private long num_components;
+	private Primitive64Matrix mu;
+	private Primitive64Matrix y;
 }

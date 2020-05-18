@@ -1,113 +1,104 @@
 package se.danielmartensson.fisherfaces;
 
-import org.apache.commons.math3.linear.MatrixUtils;
-import org.apache.commons.math3.linear.RealMatrix;
+import java.util.stream.IntStream;
+
+import org.ojalgo.function.aggregator.Aggregator;
+import org.ojalgo.matrix.Primitive64Matrix;
+import org.ojalgo.matrix.store.Primitive64Store;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import se.danielmartensson.fisherfaces.matlab.IndexSearch;
-import se.danielmartensson.fisherfaces.matlab.Mean;
 import se.danielmartensson.fisherfaces.matlab.Repmat;
-import se.danielmartensson.fisherfaces.matlab.octave.OctaveEig;
+import se.danielmartensson.fisherfaces.matlab.ojalgoroutines.Eig;
 
 public class Lda {
 
 	static Logger logger = LoggerFactory.getLogger(Lda.class);
 
 	/**
-	 * X [dim x num_data] input data y [1 x num_data] classes
+	 * X [dim x num_data] input data 
+	 * y [1 x num_data] classes
 	 * 
 	 * @return
 	 */
-	static public Model lda(RealMatrix X, RealMatrix y) {
+	static public Model lda(Primitive64Matrix X, Primitive64Matrix yTrainPrimitive) {
 
 		// Find dimension
-		int dim = X.getRowDimension();
-		int c = (int) y.getEntry(0, y.getColumnDimension() - 1) + 1; // Last element is total classes
+		long dim = X.countRows();
+		int c =  (int) (yTrainPrimitive.get(0, yTrainPrimitive.countColumns() - 1) + 1); // Last element is total classes - Maximum
 		int num_components = c - 1;
 
 		// create scatters
-		return scatters(X, y, dim, c, num_components);
+		return scatters(X, yTrainPrimitive, dim, c, num_components);
 
 	}
 
 	/**
-	 * X [dim x num_data] input data y [1 x num_data] classes num_components [int]
+	 * X [dim x num_data] input data 
+	 * y [1 x num_data] classes num_components [int]
 	 * components to keep
 	 * 
 	 * @return
 	 */
-	static public Model lda(RealMatrix X, RealMatrix y, int num_components) {
+	static public Model lda(Primitive64Matrix X, Primitive64Matrix yTrainPrimitive, long num_components) {
 
 		// Find dimension
-		int dim = X.getRowDimension();
-		int c = (int) y.getEntry(0, y.getColumnDimension() - 1) + 1; // Last element is total classes
+		long dim = X.countRows();
+		int c =  (int) (yTrainPrimitive.get(0, yTrainPrimitive.countColumns() - 1) + 1); // Last element is total classes - Maximum
 
 		// Check which one is smallest
 		if (c - 1 < num_components)
 			num_components = c - 1;
 
 		// create scatters
-		return scatters(X, y, dim, c, num_components);
+		return scatters(X, yTrainPrimitive, dim, c, num_components);
 	}
 
-	private static Model scatters(RealMatrix X, RealMatrix y, int dim, int c, int num_components) {
-		RealMatrix meanTotal = Mean.mean(X, 2); // MATLAB: mean(X, 2)
-		RealMatrix Sw = MatrixUtils.createRealMatrix(dim, dim);
-		RealMatrix Sb = MatrixUtils.createRealMatrix(dim, dim);
+	private static Model scatters(Primitive64Matrix X, Primitive64Matrix yTrainPrimitive, long dim, int c, long num_components) {
+		Primitive64Matrix meanTotal = X.reduceRows(Aggregator.AVERAGE); // MATLAB: mean(X, 2)
+		Primitive64Matrix Sw = Primitive64Matrix.FACTORY.make(dim, dim);
+		Primitive64Matrix Sb = Primitive64Matrix.FACTORY.make(dim, dim);
 
 		// Create index search
-		RealMatrix indices = IndexSearch.indexSearch(y);
+		Primitive64Matrix indices = IndexSearch.indexSearch(yTrainPrimitive);
 		for (int i = 0; i < c; i++) {
 
 			// Find the start and stop index for Xi matrix
-			int start = (int) indices.getEntry(0, i);
+			int start = indices.get(0, i).intValue();
 			int stop = 0;
 			if (i == c - 1) {
-				stop = y.getColumnDimension() - 1;
+				stop = (int) (yTrainPrimitive.countColumns() - 1); // Last index of yTrainPrimitive
 			} else {
-				stop = (int) indices.getEntry(0, i + 1) - 1;
+				stop = indices.get(0, i + 1).intValue() - 1;
 			}
-
-			RealMatrix Xi = X.getSubMatrix(0, dim - 1, start, stop);
-			RealMatrix meanClass = Mean.mean(Xi, 2); // MATLAB: mu = mean(Xi, 2)
+			
+			Primitive64Matrix Xi = X.logical().columns(IntStream.rangeClosed(start, stop).toArray()).get(); // MATLAB: Xi = X(: find(y==i))
+			Primitive64Matrix meanClass = Xi.reduceRows(Aggregator.AVERAGE); // MATLAB: meanClass = mean(Xi, 2)
 			// Center data
-			Xi = Xi.subtract(Repmat.repmat(meanClass, 1, Xi.getColumnDimension())); // MATLAB: X = X - repmat(mu, 1,
-																					// size(Xi, 2))
+			long Xicolumns = Xi.countColumns();
+			Xi = Xi.subtract(Repmat.repmat(meanClass, 1, Xicolumns)); // MATLAB: X = X - repmat(mu, 1, size(Xi, 2))
 			// Calculate within-class scatter
 			Sw = Sw.add(Xi.multiply(Xi.transpose())); // MATLAB: Sw = Sw + Xi*Xi'
 
 			// Calculate between-class scatter
-			RealMatrix difference = meanClass.subtract(meanTotal); // MATLAB: difference = meanClass - meanTotal
-			RealMatrix trans = difference.multiply(difference.transpose()); // MATLAB: trans = difference*difference'
-			Sb = Sb.add(trans.scalarMultiply(Xi.getColumnDimension())); // MATLAB: Sb = Sb + trans*size(Xi, 2)
+			Primitive64Matrix difference = meanClass.subtract(meanTotal); // MATLAB: difference = meanClass - meanTotal
+			Primitive64Matrix trans = difference.multiply(difference.transpose()); // MATLAB: trans = difference*difference'
+			Sb = Sb.add(trans.multiply(Xicolumns)); // MATLAB: Sb = Sb + trans*size(Xi, 2)
 		}
-
+						
 		// Here we use OjAlgo's EIG - Much faster than other Java libraries
-		// logger.info("Perform eigendecomposition with OjAlgo's routine");
-		// double[][] Adata = Sb.getData();
-		// double[][] Bdata = Sw.getData();
-		// double[] Ddata = new double[dim];
-		// double[][] Vdata = new double[dim][dim];
-		// Eig.eig(Adata, Bdata, Ddata, Vdata, dim);
-
-		logger.info("Perform eigendecomposition with GNU Octave's routine");
-		RealMatrix V = MatrixUtils.createRealMatrix(dim, dim);
-		RealMatrix D = MatrixUtils.createRealMatrix(dim, 1);
-		OctaveEig.eig(Sb, Sw, V, D);
-
-		// Sort eigenvalues and eigenvectors descending by eigenvalue - Need only when we are using OjAlgo's routine
-		// RealMatrix D = MatrixUtils.createColumnRealMatrix(Ddata);
-		// RealMatrix V = MatrixUtils.createRealMatrix(Vdata);
-		// Sort.sortevd(V, D); // TODO: Behöver vi denna?
+		logger.info("Perform eigendecomposition with OjAlgo's routine");
+		Primitive64Store D = Primitive64Store.FACTORY.make(dim, 1); 
+		Primitive64Store V = Primitive64Store.FACTORY.make(dim, dim);
+		Eig.eig(Sb, Sw, D, V, dim);
 
 		// Build model
 		Model LDAModel = new Model();
 		LDAModel.setName("lda");
 		LDAModel.setNum_components(num_components - 1);
-		LDAModel.setD(D.getSubMatrix(0, num_components - 1, 0, 0)); // MATLAB: D(1:num_components)
-		LDAModel.setW(V.getSubMatrix(0, V.getRowDimension() - 1, 0, num_components - 1)); // MATLAB: V(:,
-																							// 1:num_components)
+		Primitive64Matrix primitiveV = Primitive64Matrix.FACTORY.rows(V.logical().limits(-1, num_components - 1).get().toRawCopy2D()); // MATLAB: V(:, 1:num_components)
+		LDAModel.setW(primitiveV); 
 		return LDAModel;
 	}
 }

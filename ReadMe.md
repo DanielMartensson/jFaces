@@ -1,6 +1,6 @@
 # jFaces - What is that?
 
-jFaces is simple Fisherfaces algorithm in Java. This is a re-written project from pure MATLAB code to Java code. The pourpouse with this project is to offer a simple setup of an algorithm that can do image classification.
+jFaces is simple Fisherfaces algorithm in Java. This is a re-written project from pure MATLAB code to Java code. The pourpose with this project is to offer a simple setup of an algorithm that can do image classification.
 Fisherfaces is the best algorithm to use if you have a smal amout of data, as 10 pictures of 10 people where the pictrures have not the best resolution. 
 You don't need pictures, you can use normal data as well. 
 
@@ -9,14 +9,17 @@ You don't need pictures, you can use normal data as well.
 Assume that you want you are creating a web application that going to train a lot of data. But training a lot of data takes time.
 You need a faster tool that requries less tuning. 
 
-# Installation - What do I need?
+# How do I use this software?
 
-To run this project, you need the following software:
+- Comming soon
 
-- GNU Octave (Calling Octave from Java. Computing generalized eigenvalues from random symmetrical matrices can only be done in MATLAB/Octave. No Python nor Java library supporting that)
+# Development - What do I need?
+
+To run work on this project, you need the following software:
+
 - Maven
 - OpenJDK 11
-- Eclipse IDE (optional)
+- Eclipse IDE
 
 Don't forget to use low quality pictures like Yale database or Jaffed database. jFaces works great with them.
 

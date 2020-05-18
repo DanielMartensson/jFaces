@@ -1,16 +1,16 @@
 package se.danielmartensson.utils;
 
-import org.apache.commons.math3.linear.RealMatrix;
+import org.ojalgo.matrix.Primitive64Matrix;
 
 public class PrintMatrix {
 
-	static public void printMatrix(RealMatrix A) {
-		int rows = A.getRowDimension();
-		int columns = A.getColumnDimension();
+	static public void printMatrix(Primitive64Matrix A) {
+		long rows = A.countRows();
+		long columns = A.countColumns();
 		System.out.println("Rows = " + rows + " columns = " + columns);
 		for (int i = 0; i < rows; i++) {
 			for (int j = 0; j < columns; j++) {
-				double value = A.getEntry(i, j);
+				double value = A.get(i, j);
 				System.out.print("\t" + value);
 			}
 			System.out.println("");
