@@ -13,6 +13,10 @@ You need a faster tool that requries less tuning.
 
 - Comming soon
 
+# Will this project work on Android and Iphone with GraalVM?
+
+Yes. This project is 100% Java. No external C/C++/Python libraries. Only Java. 
+
 # Development - What do I need?
 
 To run work on this project, you need the following software:
@@ -21,7 +25,7 @@ To run work on this project, you need the following software:
 - OpenJDK 11
 - Eclipse IDE
 
-Don't forget to use low quality pictures like Yale database or Jaffed database. jFaces works great with them.
+Don't forget to use low quality pictures like Yale database or JAFFE database. jFaces works great with them.
 
 # Where is the orginal source and validation?
 
