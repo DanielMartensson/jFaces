@@ -51,7 +51,7 @@ public class Prediction {
 		// Except for yTest - It's only a index number of which class we are trying to predict
 		Primitive64Matrix XTrainPrimitive = Primitive64Matrix.FACTORY.rows(XTrain.toRawCopy2D());
 		Primitive64Matrix yTrainPrimitive = Primitive64Matrix.FACTORY.rows(yTrain.toRawCopy2D());
-		Primitive64Matrix XTestPrimitive = Primitive64Matrix.FACTORY.rows(XTest.toRawCopy2D());
+		Primitive64Matrix XTestPrimitive = Primitive64Matrix.FACTORY.rows(XTest.toRawCopy2D()); // Our unknown test picture
 
 		// Train model
 		logger.info("Training model");

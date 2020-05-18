@@ -11,7 +11,33 @@ You need a faster tool that requries less tuning.
 
 # How do I use this software?
 
-- Comming soon
+Open your terminal and locate the "jFaces.jar" file. Call it as this:
+
+Predicting on random sample with k-value 4
+```
+java -Xmx1000M -jar jFaces.jar -f "/home/dell/FisherFaces-Examples/pictures/Yale Database sample" -m P1 -k 4
+```
+Predicting on sample 10 with k-value 10
+```
+java -jar jFaces.jar -f "/home/dell/FisherFaces-Examples/pictures/Yale Database sample" -m P2 40 -k 10
+```
+Validating on on all samples with k-value 8. This takes time!
+```
+java -jar jFaces.jar -f "/home/dell/FisherFaces-Examples/pictures/Yale Database sample" -m V1 -k 8
+```
+Quick validating on one sample per each subject with k-value 2
+```
+java -jar jFaces.jar -f "/home/dell/FisherFaces-Examples/pictures/Yale Database sample" -m V2 -k 2
+```
+If you an error about heap memory you can always increase it by using the flag `-Xmx<memory>M` as in megabyte
+```
+java -Xmx1000M -jar jFaces.jar -f "/home/dell/FisherFaces-Examples/pictures/Yale Database sample" -m P1 -k 4
+```
+
+# TODO
+
+- Functionality to seralize the fisher faces object model and use it later with random pictures with the `Fisherfaces.predict` function. See Main.java file. 
+- Determine how good k-nearest neighbor was
 
 # Will this project work on Android and Iphone with GraalVM?
 
@@ -21,7 +47,6 @@ Yes. This project is 100% Java. No external C/C++/Python libraries. Only Java.
 
 To run work on this project, you need the following software:
 
-- Maven
 - OpenJDK 11
 - Eclipse IDE
 
