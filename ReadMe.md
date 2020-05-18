@@ -30,3 +30,8 @@ It works great!
 https://github.com/DanielMartensson/FisherFaces-Examples/
 
 
+# Tested on databases
+
+- Yale database: http://vision.ucsd.edu/content/yale-face-database
+- Jaffed database: https://zenodo.org/record/3451524#.XsKKkhZS_J8
+
