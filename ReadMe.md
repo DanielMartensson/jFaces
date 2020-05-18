@@ -17,7 +17,7 @@ Predicting on random sample with k-value 4
 ```
 java -Xmx1000M -jar jFaces.jar -f "/home/dell/FisherFaces-Examples/pictures/Yale Database sample" -m P1 -k 4
 ```
-Predicting on sample 10 with k-value 10
+Predicting on sample 40 with k-value 10
 ```
 java -jar jFaces.jar -f "/home/dell/FisherFaces-Examples/pictures/Yale Database sample" -m P2 40 -k 10
 ```
