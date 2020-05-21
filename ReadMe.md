@@ -11,8 +11,8 @@ Open your terminal and locate the "jFaces.jar" file. Call it as this:
 ```
 dell@dell-Precision-M6400:~/Dokument/GitHub/jFaces$ java -jar jFaces.jar --help
 jFaces - Image classifiction in Java. Made by Daniel Mårtensson
-Call jFaces.jar with: java -jar jFaces.jar, followed by the commands below
-Notice that you can add -Xmx<memory>M between 'java -jar' without < and >, if you want to extend the heap memory
+Call jFaces.jar with: 'java -jar jFaces.jar' followed by the commands below
+Example for increasing the heap memory: 'java -Xmx1000M -jar jFaces.jar' for 1000 megabyte in heap memory
 Command list:
 	-f Path to the folder that contains subfolders with pictures
 	-m Method which prediction or validation to use, followed by 'P1', 'P2', 'V1', 'V2' or 'V3'
