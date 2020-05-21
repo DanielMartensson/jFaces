@@ -73,6 +73,7 @@ public class Main {
 				System.out.println("jFaces - Image classifiction in Java. Made by Daniel Mårtensson");
 				System.out.println("Call jFaces.jar with: java -jar jFaces.jar, followed by the commands below");
 				System.out.println("Notice that you can add -Xmx<memory>M between 'java -jar' without < and >, if you want to extend the heap memory");
+				System.out.println("Example: 'java -Xmx1000M -jar jFaces.jar' for 1000 megabyte in heap memory");
 				System.out.println("Command list:");
 				System.out.println("\t-f Path to the folder that contains subfolders with pictures");
 				System.out.println("\t-m Method which prediction or validation to use, followed by 'P1', 'P2', 'V1', 'V2' or 'V3'");
