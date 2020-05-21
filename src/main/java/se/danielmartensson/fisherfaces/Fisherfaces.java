@@ -1,5 +1,6 @@
 package se.danielmartensson.fisherfaces;
 
+import org.ojalgo.function.aggregator.Aggregator;
 import org.ojalgo.matrix.Primitive64Matrix;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +19,8 @@ public class Fisherfaces {
 
 		// Find columns
 		long N = X.countColumns();
-		long c = (long) (y.get(0, N - 1) + 1); // Last element is total classes - It's the maximum
+		
+		long c = y.aggregateRow(0, Aggregator.MAXIMUM).longValue() + 1; // Last element is total classes - It's the maximum
 		long num_components = c - 1;
 
 		// Build model
@@ -37,7 +39,7 @@ public class Fisherfaces {
 
 		// Find columns
 		long N = X.countColumns();
-		long c = (long) (y.get(0, N - 1) + 1); // Last element is total classes - It's the maximum
+		long c = y.aggregateRow(0, Aggregator.MAXIMUM).longValue() + 1; // Last element is total classes - It's the maximum
 
 		// Check which one is smallest
 		if (c - 1 < num_components)

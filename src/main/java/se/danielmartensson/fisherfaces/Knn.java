@@ -4,12 +4,17 @@ import org.ojalgo.function.aggregator.Aggregator;
 import org.ojalgo.function.constant.PrimitiveMath;
 import org.ojalgo.matrix.Primitive64Matrix;
 import org.ojalgo.matrix.Primitive64Matrix.DenseReceiver;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import se.danielmartensson.fisherfaces.matlab.Histc;
 import se.danielmartensson.fisherfaces.matlab.Repmat;
 import se.danielmartensson.fisherfaces.matlab.Sort;
 
 
 public class Knn {
+	
+	static Logger logger = LoggerFactory.getLogger(Knn.class);
 
 	/** This is k-nearest neighbor 
 	 *  double[][] p = {{0.5815037 , 0.2126437 , 0.2778553 , 0.9896006 , 0.7984958 , 0.7577199 , 0.0470290, 0.0615568, 0.3166059, 0.4474530},
@@ -32,10 +37,14 @@ public class Knn {
 	static public int knn(Primitive64Matrix P, Primitive64Matrix y, Primitive64Matrix Q, int k) {
 		long columns = P.countColumns();
 		long rows = P.countRows();
-		if (k > columns)
+		if (k > columns) {
 			k = (int) (columns - 1);
-		if(k < 1)
+			logger.info("K cannot be larger than " + columns + ". Setting k = " + k);
+		}
+		if(k < 1) {
+			logger.info("Value k cannot be under 1. Setting k = 1");
 			k = 1; // Cannot be 0
+		}
 		return procedure(columns, rows, P, Q, k, y);
 
 	}

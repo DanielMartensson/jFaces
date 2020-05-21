@@ -22,15 +22,15 @@ public class Lda {
 	 * 
 	 * @return
 	 */
-	static public Model lda(Primitive64Matrix X, Primitive64Matrix yTrainPrimitive) {
+	static public Model lda(Primitive64Matrix X, Primitive64Matrix y) {
 
 		// Find dimension
 		long dim = X.countRows();
-		int c =  (int) (yTrainPrimitive.get(0, yTrainPrimitive.countColumns() - 1) + 1); // Last element is total classes - Maximum
+		int c = y.aggregateRow(0, Aggregator.MAXIMUM).intValue() + 1; // Last element is total classes - It's the maximum
 		int num_components = c - 1;
 
 		// create scatters
-		return scatters(X, yTrainPrimitive, dim, c, num_components);
+		return scatters(X, y, dim, c, num_components);
 
 	}
 
@@ -41,38 +41,39 @@ public class Lda {
 	 * 
 	 * @return
 	 */
-	static public Model lda(Primitive64Matrix X, Primitive64Matrix yTrainPrimitive, long num_components) {
+	static public Model lda(Primitive64Matrix X, Primitive64Matrix y, long num_components) {
 
 		// Find dimension
 		long dim = X.countRows();
-		int c =  (int) (yTrainPrimitive.get(0, yTrainPrimitive.countColumns() - 1) + 1); // Last element is total classes - Maximum
+		int c = y.aggregateRow(0, Aggregator.MAXIMUM).intValue() + 1; // Last element is total classes - It's the maximum
 
 		// Check which one is smallest
 		if (c - 1 < num_components)
 			num_components = c - 1;
 
 		// create scatters
-		return scatters(X, yTrainPrimitive, dim, c, num_components);
+		return scatters(X, y, dim, c, num_components);
 	}
 
-	private static Model scatters(Primitive64Matrix X, Primitive64Matrix yTrainPrimitive, long dim, int c, long num_components) {
+	private static Model scatters(Primitive64Matrix X, Primitive64Matrix y, long dim, int c, long num_components) {
 		Primitive64Matrix meanTotal = X.reduceRows(Aggregator.AVERAGE); // MATLAB: mean(X, 2)
 		Primitive64Matrix Sw = Primitive64Matrix.FACTORY.make(dim, dim);
 		Primitive64Matrix Sb = Primitive64Matrix.FACTORY.make(dim, dim);
 
 		// Create index search
-		Primitive64Matrix indices = IndexSearch.indexSearch(yTrainPrimitive);
+		Primitive64Matrix indices = IndexSearch.indexSearch(y);
 		for (int i = 0; i < c; i++) {
 
 			// Find the start and stop index for Xi matrix
 			int start = indices.get(0, i).intValue();
 			int stop = 0;
 			if (i == c - 1) {
-				stop = (int) (yTrainPrimitive.countColumns() - 1); // Last index of yTrainPrimitive
+				stop = (int) (y.countColumns() - 1); // Last index of y
 			} else {
 				stop = indices.get(0, i + 1).intValue() - 1;
 			}
 			
+			// Get all samples of one class
 			Primitive64Matrix Xi = X.logical().columns(IntStream.rangeClosed(start, stop).toArray()).get(); // MATLAB: Xi = X(: find(y==i))
 			Primitive64Matrix meanClass = Xi.reduceRows(Aggregator.AVERAGE); // MATLAB: meanClass = mean(Xi, 2)
 			// Center data
@@ -88,7 +89,7 @@ public class Lda {
 		}
 						
 		// Here we use OjAlgo's EIG - Much faster than other Java libraries
-		logger.info("Perform eigendecomposition with OjAlgo's routine");
+		logger.info("Perform eigendecomposition with OjAlgo's routine - This can take time");
 		Primitive64Store D = Primitive64Store.FACTORY.make(dim, 1); 
 		Primitive64Store V = Primitive64Store.FACTORY.make(dim, dim);
 		Eig.eig(Sb, Sw, D, V, dim);
@@ -96,7 +97,7 @@ public class Lda {
 		// Build model
 		Model LDAModel = new Model();
 		LDAModel.setName("lda");
-		LDAModel.setNum_components(num_components - 1);
+		//LDAModel.setNum_components(num_components - 1);
 		Primitive64Matrix primitiveV = Primitive64Matrix.FACTORY.rows(V.logical().limits(-1, num_components - 1).get().toRawCopy2D()); // MATLAB: V(:, 1:num_components)
 		LDAModel.setW(primitiveV); 
 		return LDAModel;

@@ -3,6 +3,7 @@ package se.danielmartensson.utils;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.Arrays;
+
 import javax.imageio.ImageIO;
 
 import org.ojalgo.matrix.store.Primitive64Store;
@@ -24,7 +25,7 @@ public class ReadImages {
 
 		// Read the images now
 		for (int i = 0; i < folders.length; i++) {
-			if(folders[i].isDirectory() == false) {
+			if (folders[i].isDirectory() == false) {
 				countOfContinue++;
 				continue; // Prevent so regular files will be counted
 			}
@@ -35,18 +36,17 @@ public class ReadImages {
 
 				// Get the data from images
 				double[] data = imageData(picture);
-				
+
 				// Save data
 				X.fillColumn(0, countOfPictures, Access1D.wrap(data));
 
 				// Notice the subjects with y
-				y.set(0, countOfPictures, i-countOfContinue); // We will always start at 0
+				y.set(0, countOfPictures, i - countOfContinue); // We will always start at 0
 				countOfPictures++;
 				logger.info("Done...");
 
 			}
 		}
-
 	}
 
 	// This turns the image data to 0..255 and return the data
@@ -56,7 +56,7 @@ public class ReadImages {
 			int width = image.getWidth();
 			int height = image.getHeight();
 			double[] data = new double[height * width];
-						
+
 			// Get 8-bit image
 			int countRows = 0;
 			for (int x = 0; x < width; x++) {
