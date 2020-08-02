@@ -22,7 +22,7 @@ public class SaveLoad {
 			ModelTemplate modelTemplate = new ModelTemplate();
 			modelTemplate.setP(model.getP().toRawCopy2D());
 			modelTemplate.setW(model.getW().toRawCopy2D());
-			modelTemplate.setY(model.getY().toRawCopy2D());
+			modelTemplate.setY(model.getY().toRawCopy2D());			
 			
 			// Save
 			FileOutputStream fileOut = new FileOutputStream(modelPath);
@@ -31,6 +31,7 @@ public class SaveLoad {
 			out.close();
 			fileOut.close();
 			logger.info("Model saved at " + modelPath);
+						
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

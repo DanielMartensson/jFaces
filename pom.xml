@@ -16,9 +16,9 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.ojalgo</groupId>
-			<artifactId>ojalgo</artifactId>
-			<version>48.1.0</version>
+		    <groupId>org.ojalgo</groupId>
+		    <artifactId>ojalgo</artifactId>
+		    <version>48.2.0</version>
 		</dependency>
 
 		<dependency>

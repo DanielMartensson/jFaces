@@ -6,6 +6,40 @@ You don't need pictures, you can use normal data as well.
 
 # How do I use this software?
 
+Begin first to install at least OpenJDK 11. I have left OpenJDK 8 for a long time ago.
+Collect pictures of the same individual into one folder. Do the same for the rest of the individuals into their own folders.
+Every folder are going to get a ID number beginning from 0 and counting up.
+If you compare a unknown picture that belongs to one of these folders, then jFaces is going to give you the ID number of that unknown picture.
+
+Structure the folders as subject in this way. 
+
+- Subject00
+  - SteveHappy.png
+  - SteveSad.png
+  - SteveAngry.png
+  - SteveMustach.png
+  - SteveGlasses.png
+  - etc...
+- Subject01
+  - BadAnna.png
+  - DirtyAnna.png
+  - CleanAnna.png
+  - SadAnna.png
+  - AnnaCrossEyed.png
+  - AnnaWithAHat.png
+  - etc...
+- Subject02
+  - HansDumb.png
+  - HansRedFace.png
+  - etc...
+- Subject03
+  - Jenny_Angry.png
+  - Jenny_Normal.png
+  - Jenny_with_hat.png
+  - Jenny_dark.png
+- SubjectXXXX
+  - etc...
+
 Open your terminal and locate the "jFaces.jar" file. Call it as this:
 
 ```
@@ -36,13 +70,21 @@ Examples:
 dell@dell-Precision-M6400:~/Dokument/GitHub/jFaces$ 
 ```
 
+# Status of the project
+
+This project is 100% done. No errors. Just copy the code to your project if you want image classification in the easy way.
+
 # TODO
 
-- Determine how good k-nearest neighbor was
+Modify the `Histc.java` file so we can determine the distribution of the mean. If the distribution have a small variance = Clearly identified. If the distribution have wide variance = Not clearly recognizable 
 
 # Will this project work on Android and Iphone with GraalVM?
 
 Yes. This project is 100% Java. No external C/C++/Python libraries. Only ☕.
+
+# Does this project have a C-code generator that generates optimal C-code for all embedded systems?
+
+Yes. When you build a model with parameter `-b`, then you are going to recieve an example, model and the pictures you have collected. All in C-code. 
 
 # Tested on databases
 
@@ -54,5 +96,4 @@ Yes. This project is 100% Java. No external C/C++/Python libraries. Only ☕.
 | ------------:|------------:|--------:|
 |  Yale        |  97%        | k = 4, Cross validation on samples   |
 |  JAFFE       |  98.6%      | k = 10, Cross validation on samples  |
-|  MNIST       |  97.6%        | k = 4, Test set validation on same data as train and test. 300 pictures per number. jFaces seems to have a good ability to memorize shapes |
-|  MNIST       |  95.2%        | k = 4, Test set validation  80% train and 20% test data. 300 pictures per number |
+|  MNIST       |  90%        | k = 4, Test set validation  60% train and 40% test data |

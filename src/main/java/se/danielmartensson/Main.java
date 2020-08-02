@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import se.danielmartensson.fisherfaces.Fisherfaces;
 import se.danielmartensson.fisherfaces.Model;
+import se.danielmartensson.fisherfaces.tools.GenerateC;
 import se.danielmartensson.fisherfaces.tools.Prediction;
 import se.danielmartensson.fisherfaces.tools.SaveLoad;
 import se.danielmartensson.fisherfaces.tools.Validation;
@@ -123,6 +124,7 @@ public class Main {
 			Primitive64Matrix completeY = Primitive64Matrix.FACTORY.rows(y.toRawCopy2D());
 			model = Fisherfaces.train(completeX, completeY);
 			SaveLoad.saveModel(model, modelPath);
+			GenerateC.generateC(model, modelPath, X);
 		}
 		
 		// Do prediction or validation

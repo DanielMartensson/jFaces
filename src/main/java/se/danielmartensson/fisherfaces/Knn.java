@@ -57,9 +57,9 @@ public class Knn {
 		Q = Qmutable.get();
 		Q = Q.reduceColumns(Aggregator.SUM); // MATLAB: Q = sum(Q, 1)
 		Qmutable = Q.copy();
-		Qmutable.modifyAll(PrimitiveMath.ROOT.parameter(2)); // // MATLAB: Q = sqrt(Q)
+		Qmutable.modifyAll(PrimitiveMath.ROOT.parameter(2)); // MATLAB: Q = sqrt(Q) % You don't actually don't need to use sqrt if you only want to identify
 		Q = Qmutable.get();	
-		Primitive64Matrix ysorted = Sort.sortdistances(Q, y, k); // MATLAB: [~, index] = sort(Q), ysorted = y(index);
+		Primitive64Matrix ysorted = Sort.sortdistances(Q, y, k); // MATLAB: [distances, index] = sort(Q), ysorted = y(index);
 		int[] h = Histc.histc(ysorted); // MATLAB: h = hstic(ysorted, 1:max(ysorted))
 		
 		// Find max value's index of h
