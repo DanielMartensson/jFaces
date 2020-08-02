@@ -76,7 +76,7 @@ This project is 100% done. No errors. Just copy the code to your project if you 
 
 ## TODO
 
-Modify the `Histc.java` file so we can determine the distribution of the mean. If the distribution have a small variance = Clearly identified. If the distribution have wide variance = Not clearly recognizable 
+Modify the `Histc.java` file so we can determine the distribution of the variance. If the distribution have a small variance = Clearly identified. If the distribution have wide variance = Not clearly recognizable 
 
 ## Will this project work on Android and Iphone with GraalVM?
 
