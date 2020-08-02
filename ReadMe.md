@@ -71,7 +71,7 @@ dell@dell-Precision-M6400:~/Dokument/GitHub/jFaces$
 ```
 
 This project have a built in C-code generation if you want to apply this onto embedded systems.
-When you build a fisherfaces model with parameter `-b`, then you are going to recieve an example, model and the pictures you have collected in C-code. 
+When you build a fisherfaces model with parameter `-b`, then you are going to recieve an example, model and the pictures you have collected, in C-code. 
 This C-code have the ability to measure how likely the pictures are identified. The pourpose with the Java version is just to build the model and validate it. 
 The C code is the practical implementation. 
 
