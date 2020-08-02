@@ -58,7 +58,9 @@ public class GenerateC {
 					"\n" + 
 					"	// Declare the picture\n" + 
 					"	uint8_t single_column_picture_of_WCOLUMNS_rows[Xrows];\n" + 
-					"	uint16_t knearest_factor = 10; // Recommended for the YALE database\n" + 
+					"	uint16_t knearest_factor = 15; // Recommended for the YALE database\n" + 
+					"	float sigma;\n" + 
+					"	uint16_t ID;\n" + 
 					"\n" + 
 					"	// Loop all the pictures\n" + 
 					"	for(uint16_t j = 0; j < Xcolumns; j++){\n" + 
@@ -66,15 +68,15 @@ public class GenerateC {
 					"		// Read the picture\n" + 
 					"		printf(\"Reading picture %d, which has ID %d\\n\", j, Yinit[j]);\n" + 
 					"		for(uint32_t k = 0; k < Xrows; k++){\n" + 
-					"			single_column_picture_of_77760_rows[k] = Xmat[Xcolumns*k + j];\n" + 
+					"			single_column_picture_of_WCOLUMNS_rows[k] = Xmat[Xcolumns*k + j];\n" + 
 					"		}\n" + 
 					"\n" + 
 					"		// Do the prediction and measure the time\n" + 
 					"		clock_t start = clock();\n" + 
-					"		uint16_t ID = predict(single_column_picture_of_WCOLUMNS_rows, knearest_factor);\n" + 
+					"		predict(single_column_picture_of_WCOLUMNS_rows, knearest_factor, &sigma, &ID);\n" + 
 					"		clock_t end = clock();\n" + 
 					"		float seconds = (float)(end - start) / CLOCKS_PER_SEC;\n" + 
-					"		printf(\"The picture has ID = %d. Prediction: %f seconds. Success: \", ID, seconds);\n" + 
+					"		printf(\"The picture has ID = %d and the identify standard deviation sigma = %f (low = better). Prediction: %f seconds. Success: \", ID,  sigma, seconds);\n" + 
 					"		if(Yinit[j] == ID)\n" + 
 					"			printf(\"true\\n\");\n" + 
 					"		else\n" + 
@@ -97,7 +99,9 @@ public class GenerateC {
 
 				// Declare the picture
 				uint8_t single_column_picture_of_WCOLUMNS_rows[Xrows];
-				uint16_t knearest_factor = 10; // Recommended for the YALE database
+				uint16_t knearest_factor = 15; // Recommended for the YALE database
+				float sigma;
+				uint16_t ID;
 
 				// Loop all the pictures
 				for(uint16_t j = 0; j < Xcolumns; j++){
@@ -105,15 +109,15 @@ public class GenerateC {
 					// Read the picture
 					printf("Reading picture %d, which has ID %d\n", j, Yinit[j]);
 					for(uint32_t k = 0; k < Xrows; k++){
-						single_column_picture_of_77760_rows[k] = Xmat[Xcolumns*k + j];
+						single_column_picture_of_WCOLUMNS_rows[k] = Xmat[Xcolumns*k + j];
 					}
 
 					// Do the prediction and measure the time
 					clock_t start = clock();
-					uint16_t ID = predict(single_column_picture_of_WCOLUMNS_rows, knearest_factor);
+					predict(single_column_picture_of_WCOLUMNS_rows, knearest_factor, &sigma, &ID);
 					clock_t end = clock();
 					float seconds = (float)(end - start) / CLOCKS_PER_SEC;
-					printf("The picture has ID = %d. Prediction: %f seconds. Success: ", ID, seconds);
+					printf("The picture has ID = %d and the identify standard deviation sigma = %f (low = better). Prediction: %f seconds. Success: ", ID,  sigma, seconds);
 					if(Yinit[j] == ID)
 						printf("true\n");
 					else
@@ -152,7 +156,8 @@ public class GenerateC {
 			// Generate #include
 			data.write("#include \"" + file.getName().replace("_logic_.c", "_model_.h") + "\"\n");
 			data.write("#include <stdint.h> \n");
-			data.write("#include <string.h> \n\n");
+			data.write("#include <string.h> \n");
+			data.write("#include <math.h> \n\n");
 			
 			// Generate empty arrays for using later with the function predict
 			data.write("static float Qmat[Prows*Pcolumns];\n");
@@ -160,24 +165,34 @@ public class GenerateC {
 			
 			// Print the functions
 			String functions =
+					"// Check the standard deviation of H - Large standard deviation is not likely recognizable. Small standard deviation is likely recognizable\n" + 
+					"// MATLAB:\n" + 
+					"// sigma = std(H);\n" + 
+					"static void find_standard_deviation(uint16_t H[], float* sigma, uint16_t maxY, uint16_t* ID){\n" + 
+					"	float sigma_square = 0;\n" + 
+					"	uint16_t mean = H[*ID];\n" + 
+					"	for(uint16_t i = 0; i < maxY; i++){\n" + 
+					"		sigma_square += (H[i] - mean)*(H[i] - mean);\n" + 
+					"	}\n" + 
+					"	*sigma = sqrtf(sigma_square / maxY);\n" + 
+					"}\n" + 
+					"\n" + 
 					"// Check the largest value of H and find its index\n" + 
 					"// MATLAB:\n" + 
 					"// [~, index] = max(H);\n" + 
-					"static uint8_t find_max_index(uint16_t H[], uint16_t maxY){\n" + 
+					"static void find_max_index(uint16_t H[], uint16_t maxY, uint16_t* ID){\n" + 
 					"	uint16_t maxH = H[0];\n" + 
-					"	uint16_t index = 0;\n" + 
 					"	for(uint16_t i = 1; i < maxY; i++){\n" + 
 					"		if(H[i] > maxH){\n" + 
 					"			maxH = H[i];\n" + 
-					"			index = i;\n" + 
+					"			*ID = i;\n" + 
 					"		}\n" + 
 					"	}\n" + 
-					"	return index;\n" + 
 					"}\n" + 
 					"\n" + 
 					"// Do histogram counting\n" + 
 					"// MATLAB:\n" + 
-					"// H = histc(Y, 1:maxY)\n" + 
+					"// H = histc(Y, 1:maxY);\n" + 
 					"static void histc(uint16_t H[], uint16_t Y[], uint16_t maxY, uint16_t knearest_factor){\n" + 
 					"	memset(H, 0, maxY*sizeof(uint16_t));\n" + 
 					"	for (uint16_t i = 0; i < knearest_factor; i++){\n" + 
@@ -188,7 +203,7 @@ public class GenerateC {
 					"// Find max value of Y with knearest_factor as index limit\n" + 
 					"// MATLAB:\n" + 
 					"// Y = Y(1:knearest_factor);\n" + 
-					"// maxY = max(Y)\n" + 
+					"// maxY = max(Y);\n" + 
 					"static uint16_t find_max_value(uint16_t Y[], uint16_t knearest_factor){\n" + 
 					"	uint16_t maxY = Y[0];\n" + 
 					"	for(uint16_t i = 1; i < knearest_factor; i++){\n" + 
@@ -202,7 +217,7 @@ public class GenerateC {
 					"// This is inserted sort method for the first row of Q\n" + 
 					"// MATLAB:\n" + 
 					"// [~, ind] = sort(Q(1, :));\n" + 
-					"// Y = Y(ind)\n" + 
+					"// Y = Y(ind);\n" + 
 					"static void sort_Y_depending_on_first_row_of_Q(float Q[], uint16_t Y[]) {\n" + 
 					"	uint16_t i, j, keyY;\n" + 
 					"	float keyQ;\n" + 
@@ -248,7 +263,7 @@ public class GenerateC {
 					"\n" + 
 					"// Multiply vector with matrix\n" + 
 					"// MATLAB:\n" + 
-					"// Q = W*picture\n" + 
+					"// Q = W*picture;\n" + 
 					"static void matrix_vector_multiplication(const float W[], uint8_t picture[], float Q[]){\n" + 
 					"	uint16_t Qindex = 0;\n" + 
 					"	for(uint16_t i = 0; i < Wrows; i++){\n" + 
@@ -261,7 +276,7 @@ public class GenerateC {
 					"}\n" + 
 					"\n" + 
 					"// Call this function with the picture array and k-factor\n" + 
-					"uint16_t predict(uint8_t single_column_picture_of_WCOLUMNS_rows[], uint16_t knearest_factor){\n" + 
+					"void predict(uint8_t single_column_picture_of_WCOLUMNS_rows[], uint16_t knearest_factor, float* sigma, uint16_t* ID){\n" + 
 					"\n" + 
 					"	// Security check if we have slected a k-value that excedes Ycolumns\n" + 
 					"	if(knearest_factor > Ycolumns){\n" + 
@@ -278,9 +293,10 @@ public class GenerateC {
 					"	uint16_t maxY = find_max_value(Ymat, knearest_factor) + 1;\n" + 
 					"	uint16_t H[maxY];\n" + 
 					"	histc(H, Ymat, maxY, knearest_factor);\n" + 
-					"	return find_max_index(H, maxY);\n" + 
-					"}\n" + 
-					"";
+					"	find_max_index(H, maxY, ID); // The index of max value of H is the ID\n" + 
+					"	find_standard_deviation(H, sigma, maxY, ID); // We use this to check if we have correct identify the picture or not\n" + 
+					"\n" + 
+					"}";
 			functions = functions.replaceAll("WCOLUMNS", String.valueOf(Wcolumns));
 			data.write(functions);
 			
@@ -289,26 +305,35 @@ public class GenerateC {
 			bw.close();
 			logger.info("Model header generated at " + modelPath);
 			
-			
 			/*
+			// Check the standard deviation of H - Large standard deviation is not likely recognizable. Small standard deviation is likely recognizable
+			// MATLAB:
+			// sigma = std(H);
+			static void find_standard_deviation(uint16_t H[], float* sigma, uint16_t maxY, uint16_t* ID){
+				float sigma_square = 0;
+				uint16_t mean = H[*ID];
+				for(uint16_t i = 0; i < maxY; i++){
+					sigma_square += (H[i] - mean)*(H[i] - mean);
+				}
+				*sigma = sqrtf(sigma_square / maxY);
+			}
+
 			// Check the largest value of H and find its index
 			// MATLAB:
 			// [~, index] = max(H);
-			static uint8_t find_max_index(uint16_t H[], uint16_t maxY){
+			static void find_max_index(uint16_t H[], uint16_t maxY, uint16_t* ID){
 				uint16_t maxH = H[0];
-				uint16_t index = 0;
 				for(uint16_t i = 1; i < maxY; i++){
 					if(H[i] > maxH){
 						maxH = H[i];
-						index = i;
+						*ID = i;
 					}
 				}
-				return index;
 			}
 
 			// Do histogram counting
 			// MATLAB:
-			// H = histc(Y, 1:maxY)
+			// H = histc(Y, 1:maxY);
 			static void histc(uint16_t H[], uint16_t Y[], uint16_t maxY, uint16_t knearest_factor){
 				memset(H, 0, maxY*sizeof(uint16_t));
 				for (uint16_t i = 0; i < knearest_factor; i++){
@@ -319,7 +344,7 @@ public class GenerateC {
 			// Find max value of Y with knearest_factor as index limit
 			// MATLAB:
 			// Y = Y(1:knearest_factor);
-			// maxY = max(Y)
+			// maxY = max(Y);
 			static uint16_t find_max_value(uint16_t Y[], uint16_t knearest_factor){
 				uint16_t maxY = Y[0];
 				for(uint16_t i = 1; i < knearest_factor; i++){
@@ -333,7 +358,7 @@ public class GenerateC {
 			// This is inserted sort method for the first row of Q
 			// MATLAB:
 			// [~, ind] = sort(Q(1, :));
-			// Y = Y(ind)
+			// Y = Y(ind);
 			static void sort_Y_depending_on_first_row_of_Q(float Q[], uint16_t Y[]) {
 				uint16_t i, j, keyY;
 				float keyQ;
@@ -379,7 +404,7 @@ public class GenerateC {
 
 			// Multiply vector with matrix
 			// MATLAB:
-			// Q = W*picture
+			// Q = W*picture;
 			static void matrix_vector_multiplication(const float W[], uint8_t picture[], float Q[]){
 				uint16_t Qindex = 0;
 				for(uint16_t i = 0; i < Wrows; i++){
@@ -392,7 +417,7 @@ public class GenerateC {
 			}
 
 			// Call this function with the picture array and k-factor
-			uint16_t predict(uint8_t single_column_picture_of_WCOLUMNS_rows[], uint16_t knearest_factor){
+			void predict(uint8_t single_column_picture_of_WCOLUMNS_rows[], uint16_t knearest_factor, float* sigma, uint16_t* ID){
 
 				// Security check if we have slected a k-value that excedes Ycolumns
 				if(knearest_factor > Ycolumns){
@@ -409,9 +434,10 @@ public class GenerateC {
 				uint16_t maxY = find_max_value(Ymat, knearest_factor) + 1;
 				uint16_t H[maxY];
 				histc(H, Ymat, maxY, knearest_factor);
-				return find_max_index(H, maxY);
-			}
-			*/
+				find_max_index(H, maxY, ID); // The index of max value of H is the ID
+				find_standard_deviation(H, sigma, maxY, ID); // We use this to check if we have correct identify the picture or not
+
+			}*/
 			
 		}catch (IOException e) {
 			e.printStackTrace();
@@ -505,7 +531,7 @@ public class GenerateC {
 			
 			
 			// Write code
-			data.write("\nuint16_t predict(uint8_t* single_column_picture_of_" + Wcolumns + "_rows" + ", uint16_t knearest_factor);");
+			data.write("\nvoid predict(uint8_t* single_column_picture_of_" + Wcolumns + "_rows" + ", uint16_t knearest_factor, float* sigma, uint16_t* ID);");
 			bw.write(data.toString());
 			bw.close();
 			logger.info("Model header generated at " + modelPath);

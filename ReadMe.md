@@ -1,6 +1,6 @@
 # jFaces - What is that?
 
-jFaces is simple Fisherfaces algorithm in Java. The pourpose with this project is to offer a simple setup of an algorithm that can do image classification.
+jFaces is simple Fisherfaces algorithm in 100% Java ☕ (No C/C++/Pyhton/Fortran/etc..). The pourpose with this project is to offer a simple setup of an algorithm that can do image classification.
 Fisherfaces is the best algorithm to use if you have a smal amout of data, as 10 pictures of 10 people where the pictrures have not the best resolution. 
 You don't need pictures, you can use normal data as well. 
 
@@ -70,21 +70,14 @@ Examples:
 dell@dell-Precision-M6400:~/Dokument/GitHub/jFaces$ 
 ```
 
+This project have a built in C-code generation if you want to apply this onto embedded systems.
+When you build a fisherfaces model with parameter `-b`, then you are going to recieve an example, model and the pictures you have collected in C-code. 
+This C-code have the ability to measure how likely the pictures are identified. The pourpose with the Java version is just to build the model and validate it. 
+The C code is the practical implementation. 
+
 ## Status of the project
 
 This project is 100% done. No errors. Just copy the code to your project if you want image classification in the easy way.
-
-## TODO
-
-Modify the `Histc.java` file so we can determine the distribution of the variance. If the distribution have a small variance = Clearly identified. If the distribution have wide variance = Not clearly recognizable 
-
-## Will this project work on Android and Iphone with GraalVM?
-
-Yes. This project is 100% Java. No external C/C++/Python libraries. Only ☕.
-
-## Does this project have a C-code generator that generates optimal C-code for all embedded systems?
-
-Yes. When you build a model with parameter `-b`, then you are going to recieve an example, model and the pictures you have collected. All in C-code. 
 
 ## Tested on databases
 
