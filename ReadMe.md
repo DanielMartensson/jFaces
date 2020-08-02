@@ -4,7 +4,7 @@ jFaces is simple Fisherfaces algorithm in Java. The pourpose with this project i
 Fisherfaces is the best algorithm to use if you have a smal amout of data, as 10 pictures of 10 people where the pictrures have not the best resolution. 
 You don't need pictures, you can use normal data as well. 
 
-# How do I use this software?
+## How do I use this software?
 
 Begin first to install at least OpenJDK 11. I have left OpenJDK 8 for a long time ago.
 Collect pictures of the same individual into one folder. Do the same for the rest of the individuals into their own folders.
@@ -70,23 +70,23 @@ Examples:
 dell@dell-Precision-M6400:~/Dokument/GitHub/jFaces$ 
 ```
 
-# Status of the project
+## Status of the project
 
 This project is 100% done. No errors. Just copy the code to your project if you want image classification in the easy way.
 
-# TODO
+## TODO
 
 Modify the `Histc.java` file so we can determine the distribution of the mean. If the distribution have a small variance = Clearly identified. If the distribution have wide variance = Not clearly recognizable 
 
-# Will this project work on Android and Iphone with GraalVM?
+## Will this project work on Android and Iphone with GraalVM?
 
 Yes. This project is 100% Java. No external C/C++/Python libraries. Only ☕.
 
-# Does this project have a C-code generator that generates optimal C-code for all embedded systems?
+## Does this project have a C-code generator that generates optimal C-code for all embedded systems?
 
 Yes. When you build a model with parameter `-b`, then you are going to recieve an example, model and the pictures you have collected. All in C-code. 
 
-# Tested on databases
+## Tested on databases
 
 - Yale database: http://vision.ucsd.edu/content/yale-face-database
 - JAFFE database: https://zenodo.org/record/3451524#.XsKKkhZS_J8
