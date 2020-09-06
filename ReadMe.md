@@ -1,6 +1,6 @@
 # jFaces - What is that?
 
-jFaces is simple Fisherfaces algorithm in 100% Java ☕ (No C/C++/Pyhton/Fortran/etc..). The pourpose with this project is to offer a simple setup of an algorithm that can do image classification.
+jFaces is simple Fisherfaces algorithm in 100% Java ☕ (No C/C++/Pyhton/Fortran/etc..). The purpose with this project is to offer a simple setup of an algorithm that can do image classification.
 Fisherfaces is the best algorithm to use if you have a smal amout of data, as 10 pictures of 10 people where the pictrures have not the best resolution. 
 You don't need pictures, you can use normal data as well. 
 
